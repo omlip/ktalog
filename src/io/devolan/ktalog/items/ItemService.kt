@@ -4,16 +4,16 @@ import io.devolan.ktalog.config.DatabaseFactory.dbQuery
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
-import java.util.UUID
+import java.util.*
 
 class ItemService {
 
     suspend fun getItems(): List<Item> = dbQuery {
-        Items.leftJoin(Contexts).selectAll().toItems()
+        Items.leftJoin(Drops).selectAll().toItems()
     }
 
     suspend fun getItemById(id: UUID): Item? = dbQuery {
-        Items.leftJoin(Contexts).select { (Items.id eq id) }
+        Items.leftJoin(Drops).select { Items.id eq id }
             .toItems()
             .firstOrNull()
     }
@@ -25,11 +25,11 @@ class ItemService {
             it[comment] = item.comment
         } get Items.id
 
-        item.contexts.forEach { s ->
-            Contexts.insert {
+        item.drops.forEach { s ->
+            Drops.insert {
                 it[id] = UUID.randomUUID()
                 it[content] = s
-                it[Contexts.itemId] = itemId
+                it[Drops.itemId] = itemId
             }
         }
     }

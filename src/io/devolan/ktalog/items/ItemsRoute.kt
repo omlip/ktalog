@@ -2,23 +2,17 @@ package io.devolan.ktalog.items
 
 import io.ktor.application.*
 import io.ktor.features.*
-import io.ktor.freemarker.*
 import io.ktor.http.*
-import io.ktor.http.cio.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.util.*
 import java.util.*
 
 fun Route.itemsRoute(itemService: ItemService) {
 
     route("/items") {
 
-        get {
-            val items: List<Item> = itemService.getItems()
-            call.respond(items)
-        }
+        get { call.respond(itemService.getItems()) }
 
         post {
             val request = call.receive<Request>()
@@ -31,16 +25,18 @@ fun Route.itemsRoute(itemService: ItemService) {
 
         get("/{id}") {
             val id = UUID.fromString(call.parameters["id"].toString())
-            val item = itemService.getItemById(id) ?: throw NotFoundException()
-
-            call.respond(item)
+            when (val i = itemService.getItemById(id)) {
+                null -> throw NotFoundException()
+                else-> call.respond(i)
+            }
         }
 
     }
 
 }
 
-data class Request (val description : String,
-                    val comment: String,
-                    val context: String
+data class Request(
+    val description: String,
+    val comment: String,
+    val context: String
 )
