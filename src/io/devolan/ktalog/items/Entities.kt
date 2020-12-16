@@ -5,7 +5,6 @@ import io.devolan.ktalog.serialization.UUIDSerializer
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.util.*
-import kotlin.collections.ArrayList
 
 @Serializable
 data class Item(
@@ -13,7 +12,7 @@ data class Item(
     val id: UUID,
     val description: String,
     val comment: String?,
-    val drops: ArrayList<Drop> = ArrayList(0)
+    val drops: MutableList<Drop> = mutableListOf<Drop>()
 )
 
 @Serializable
