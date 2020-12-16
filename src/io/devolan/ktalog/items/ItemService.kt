@@ -1,6 +1,7 @@
 package io.devolan.ktalog.items
 
-import io.devolan.ktalog.config.DatabaseFactory.dbQuery
+import io.devolan.ktalog.DatabaseUtil.dbQuery
+import io.devolan.ktalog.toItems
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll

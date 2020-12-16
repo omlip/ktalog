@@ -12,8 +12,8 @@ val jackson_datatype_jsr310_version: String = "2.11.3"
 
 plugins {
     application
-    kotlin("jvm") version "1.4.20"
-    kotlin("plugin.serialization") version "1.4.20"
+    kotlin("jvm") version "1.4.21"
+    kotlin("plugin.serialization") version "1.4.21"
     id("com.github.johnrengelman.shadow") version "5.2.0"
 
 }

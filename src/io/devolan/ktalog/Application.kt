@@ -1,6 +1,8 @@
 package io.devolan.ktalog
 
 import com.auth0.jwk.JwkProviderBuilder
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.devolan.ktalog.config.AuthorizationException
@@ -25,7 +27,7 @@ import org.kodein.di.eagerSingleton
 import org.kodein.di.instance
 import org.kodein.di.singleton
 import java.net.URL
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -81,10 +83,12 @@ fun Application.module() {
         maxAgeInSeconds = 86400
     }
 
+    /*
+    * Configure Authorization
+    * */
     install(RoleBasedAuthorization) {
         getRoles {
-            it as JWTPrincipal
-            it.payload.claims["groups"]!!.asList(Role::class.java).toSet()
+            (it as JWTPrincipal).payload.claims["groups"]!!.asList(Role::class.java).toSet()
         }
     }
 
@@ -93,14 +97,34 @@ fun Application.module() {
     * */
     install(Authentication) {
         basic("myBasicAuth") {
-            realm = "Ktor Server"
             validate {
                 if (it.name == "test" && it.password == "password") UserIdPrincipal(it.name) else null
             }
         }
         jwt("myJwtAuth") {
-            verifier(jwkProvider, jwkIssuer)
-            realm = jwkRealm
+
+            val audience = property("auth.jwt.audience")
+
+            if(testing) {
+                val verifier = JWT.require(Algorithm.HMAC256("secret"))
+                    .withIssuer(property("auth.jwt.jwkIssuer"))
+                    .withAudience(audience)
+                    .build(); //Reusable verifier instance
+
+                val audience = property("auth.jwt.audience")
+                verifier(verifier)
+
+            }else {
+                val jwkIssuer = property("auth.jwt.jwkIssuer")
+                val jwkProvider = JwkProviderBuilder(URL(property("auth.jwt.jwkUrl")))
+                    .cached(10, 24, TimeUnit.HOURS)
+                    .rateLimited(10, 1, TimeUnit.MINUTES)
+                    .build()
+
+                verifier(jwkProvider, jwkIssuer)
+
+            }
+
             validate { credentials ->
                 if (credentials.payload.audience.contains(audience)) JWTPrincipal(credentials.payload) else null
             }
@@ -147,14 +171,7 @@ fun Application.module() {
     }
 }
 
-val Application.envKind get() = environment.config.property("ktor.environment").getString()
-
-const val jwkUrl = "https://dev-1870027.okta.com/oauth2/default/v1/keys"
-const val jwkIssuer = "https://dev-1870027.okta.com/oauth2/default"
-const val jwkRealm = "Ktor Server"
-const val audience = "api://default"
-val jwkProvider = JwkProviderBuilder(URL(jwkUrl))
-    .cached(10, 24, TimeUnit.HOURS)
-    .rateLimited(10, 1, TimeUnit.MINUTES)
-    .build()
+val Application.envKind get() = property("ktor.deployment.environment")
+val Application.testing get() = envKind == "test"
+fun Application.property(key: String) = environment.config.property(key).getString()
 

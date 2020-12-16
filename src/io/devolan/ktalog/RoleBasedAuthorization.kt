@@ -18,17 +18,18 @@ package io.devolan.ktalog.config
 
 import io.ktor.application.*
 import io.ktor.auth.*
+import io.ktor.request.*
 import io.ktor.routing.*
 import io.ktor.util.*
 import io.ktor.util.pipeline.*
-//import mu.KotlinLogging
+import mu.KotlinLogging
 
 typealias Role = String
 
 class AuthorizationException(override val message: String) : Exception(message)
 
 class RoleBasedAuthorization(config: Configuration) {
-    //private val logger = KotlinLogging.logger { }
+    private val logger = KotlinLogging.logger { }
     private val getRoles = config._getRoles
 
     class Configuration {
@@ -79,7 +80,7 @@ class RoleBasedAuthorization(config: Configuration) {
             }
             if (denyReasons.isNotEmpty()) {
                 val message = denyReasons.joinToString(". ")
-                //logger.warn { "Authorization failed for ${call.request.path()}. ${message}" }
+                logger.warn { "Authorization failed for ${call.request.path()}. ${message}" }
                 throw AuthorizationException(message)
             }
         }

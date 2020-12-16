@@ -35,6 +35,12 @@ fun Route.itemsRoute(itemService: ItemService) {
 
 }
 
+data class NewItem(
+    val description: String,
+    val comment: String? = null,
+    val drops: List<String> = emptyList()
+)
+
 data class Request(
     val description: String,
     val comment: String,
