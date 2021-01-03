@@ -20,7 +20,7 @@ object DatabaseUtil {
 
 fun Query.toItems(): List<Item> {
     val results = ArrayList<Item>()
-    toList().forEach {row ->
+    forEach { row ->
 
         val drops = ArrayList<Drop>()
 

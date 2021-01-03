@@ -23,16 +23,29 @@ fun Route.itemsRoute(itemService: ItemService) {
             call.respond(HttpStatusCode.Created)
         }
 
-        get("/{id}") {
-            val id = UUID.fromString(call.parameters["id"].toString())
-            when (val i = itemService.getItemById(id)) {
-                null -> throw NotFoundException()
-                else-> call.respond(i)
+        route("/{id}") {
+            get {
+                val id = uuid(call.parameters["id"].toString())
+                when (val i = itemService.getItemById(id)) {
+                    null -> throw NotFoundException()
+                    else-> call.respond(i)
+                }
+            }
+
+            delete {
+                val uuid = uuid(call.parameters["id"].toString())
+                itemService.delete(uuid)
+
+                call.respond(HttpStatusCode.NoContent)
             }
         }
-
     }
+}
 
+fun uuid(uuid: String): UUID = try {
+    UUID.fromString(uuid)
+} catch (e: IllegalArgumentException) {
+    throw BadRequestException(e.localizedMessage, e)
 }
 
 data class NewItem(

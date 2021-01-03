@@ -58,6 +58,7 @@ fun Application.module() {
      */
     install(ContentNegotiation) {
         json()
+
     }
 
     /**
@@ -75,11 +76,13 @@ fun Application.module() {
         method(HttpMethod.Put)
         method(HttpMethod.Delete)
         method(HttpMethod.Patch)
-        header(HttpHeaders.AccessControlAllowHeaders)
-        header(HttpHeaders.ContentType)
         header(HttpHeaders.AccessControlAllowOrigin)
-        anyHost()
-        allowCredentials = true
+        header(HttpHeaders.AccessControlAllowHeaders)
+        header(HttpHeaders.AccessControlAllowMethods)
+        header(HttpHeaders.Authorization)
+        host("localhost:4200")
+
+        allowCredentials = false
         maxAgeInSeconds = 86400
     }
 
@@ -111,7 +114,6 @@ fun Application.module() {
                     .withAudience(audience)
                     .build(); //Reusable verifier instance
 
-                val audience = property("auth.jwt.audience")
                 verifier(verifier)
 
             }else {
@@ -134,7 +136,6 @@ fun Application.module() {
     /*
     * Configure all routes
     * */
-
     routing {
         get("/health") {
             call.respondText(text = "UP", contentType = ContentType.Text.Plain)
