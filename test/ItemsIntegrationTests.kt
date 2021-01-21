@@ -2,9 +2,9 @@ package io.devolan
 
 import io.devolan.TokenFactory.Companion.tokenWithAdminRole
 import io.devolan.TokenFactory.Companion.tokenWithUserRole
+import io.devolan.ktalog.api
 import io.devolan.ktalog.items.Drops
 import io.devolan.ktalog.items.Items
-import io.devolan.ktalog.module
 import io.ktor.application.*
 import io.ktor.config.*
 import io.ktor.http.*
@@ -25,7 +25,7 @@ class ItemsIntegrationTests {
             it.put("auth.jwt.jwkIssuer", "https://dev-1870027.okta.com/oauth2/default")
             it.put("auth.jwt.audience", "api://default")
         }
-        module()
+        api()
         cleanAndInsertData()
     }
 

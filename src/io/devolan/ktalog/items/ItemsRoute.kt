@@ -1,6 +1,8 @@
 package io.devolan.ktalog.items
 
+import io.devolan.ktalog.config.withRole
 import io.ktor.application.*
+import io.ktor.auth.*
 import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -8,35 +10,38 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import java.util.*
 
-fun Route.itemsRoute(itemService: ItemService) {
+fun Route.items(itemService: ItemService) {
+    authenticate("myJwtAuth") {
+        withRole("admin") {
+            route("/items") {
 
-    route("/items") {
+                get { call.respond(itemService.getItems()) }
 
-        get { call.respond(itemService.getItems()) }
+                post {
+                    val request = call.receive<Request>()
 
-        post {
-            val request = call.receive<Request>()
+                    val newItem = NewItem(request.description, request.comment, listOf(request.context))
 
-            val newItem = NewItem(request.description, request.comment, listOf(request.context))
-
-            itemService.insert(newItem)
-            call.respond(HttpStatusCode.Created)
-        }
-
-        route("/{id}") {
-            get {
-                val id = uuid(call.parameters["id"].toString())
-                when (val i = itemService.getItemById(id)) {
-                    null -> throw NotFoundException()
-                    else-> call.respond(i)
+                    itemService.insert(newItem)
+                    call.respond(HttpStatusCode.Created)
                 }
-            }
 
-            delete {
-                val uuid = uuid(call.parameters["id"].toString())
-                itemService.delete(uuid)
+                route("/{id}") {
+                    get {
+                        val id = uuid(call.parameters["id"].toString())
+                        when (val i = itemService.getItemById(id)) {
+                            null -> throw NotFoundException()
+                            else -> call.respond(i)
+                        }
+                    }
 
-                call.respond(HttpStatusCode.NoContent)
+                    delete {
+                        val uuid = uuid(call.parameters["id"].toString())
+                        itemService.delete(uuid)
+
+                        call.respond(HttpStatusCode.NoContent)
+                    }
+                }
             }
         }
     }

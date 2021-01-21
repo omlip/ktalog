@@ -8,10 +8,10 @@ import com.zaxxer.hikari.HikariDataSource
 import io.devolan.ktalog.config.AuthorizationException
 import io.devolan.ktalog.config.Role
 import io.devolan.ktalog.config.RoleBasedAuthorization
-import io.devolan.ktalog.config.withRole
 import io.devolan.ktalog.exceptions.AuthenticationException
 import io.devolan.ktalog.items.ItemService
-import io.devolan.ktalog.items.itemsRoute
+import io.devolan.ktalog.items.items
+import io.devolan.ktalog.monitoring.health
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
@@ -33,7 +33,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
-fun Application.module() {
+fun Application.api() {
 
     /**
      *  Dependency injection with Kodein
@@ -58,7 +58,6 @@ fun Application.module() {
      */
     install(ContentNegotiation) {
         json()
-
     }
 
     /**
@@ -137,22 +136,10 @@ fun Application.module() {
     * Configure all routes
     * */
     routing {
-        get("/health") {
-            call.respondText(text = "UP", contentType = ContentType.Text.Plain)
-        }
+        health()
 
-        authenticate("myBasicAuth") {
-            get("/protected") {
-                val principal = call.principal<UserIdPrincipal>()!!
-                call.respondText("Hello ${principal.name}")
-            }
-        }
-        authenticate("myJwtAuth") {
-            withRole("admin") {
-                val itemService: ItemService by di.instance()
-                itemsRoute(itemService)
-            }
-        }
+        val itemService: ItemService by di.instance()
+        items(itemService)
 
         install(StatusPages) {
 

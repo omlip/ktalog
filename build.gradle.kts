@@ -3,12 +3,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val logback_version: String by project
 val ktor_version: String by project
 val kotlin_version: String by project
-val exposed_version: String = "0.27.1"
+val exposed_version: String = "0.28.1"
 val kodein_jvm_version: String = "7.1.0"
 val hikari_version: String = "3.4.5"
 val junit_version: String = "5.7.0"
-val mariadb_driver_version: String = "2.7.0"
-val jackson_datatype_jsr310_version: String = "2.11.3"
+val mariadb_driver_version: String = "2.7.1"
+val h2_driver_version: String = "1.4.200"
+val kotlinx_serialization_json_version = "1.0.1"
+val kotlin_logging_jvm_version = "2.0.2"
 
 plugins {
     application
@@ -60,18 +62,18 @@ dependencies {
     implementation("io.ktor:ktor-auth:$ktor_version")
     implementation("io.ktor:ktor-auth-jwt:$ktor_version")
 
-    implementation("io.github.microutils:kotlin-logging-jvm:2.0.2") {
+    implementation("io.github.microutils:kotlin-logging-jvm:$kotlin_logging_jvm_version") {
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-common")
     }
 
     implementation("com.zaxxer:HikariCP:$hikari_version")
     implementation("org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version")
-    implementation("com.h2database:h2:1.4.200")
+    implementation("com.h2database:h2:$h2_driver_version")
 
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-java-time:$exposed_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_json_version")
 
     implementation("org.kodein.di:kodein-di-jvm:$kodein_jvm_version")
 
