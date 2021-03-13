@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val logback_version: String by project
 val ktor_version: String by project
 val kotlin_version: String by project
-val exposed_version: String = "0.28.1"
+val exposed_version: String = "0.29.1"
 val kodein_jvm_version: String = "7.1.0"
 val hikari_version: String = "3.4.5"
 val junit_version: String = "5.7.0"
@@ -14,10 +14,9 @@ val kotlin_logging_jvm_version = "2.0.2"
 
 plugins {
     application
-    kotlin("jvm") version "1.4.21"
-    kotlin("plugin.serialization") version "1.4.21"
+    kotlin("jvm") version "1.4.31"
+    kotlin("plugin.serialization") version "1.4.31"
     id("com.github.johnrengelman.shadow") version "5.2.0"
-
 }
 
 group = "io.devolan.ktalog"
@@ -44,10 +43,13 @@ tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
     }
 }
 
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions.useIR = true
+
 repositories {
     mavenLocal()
+    mavenCentral()
     jcenter()
-    maven { url = uri("https://kotlin.bintray.com/ktor") }
 }
 
 dependencies {
